@@ -141,7 +141,7 @@
       let col = majorDiagonalColumnIndexAtFirstRow;
       let row = 0;
       let pieceCount = 0;
-      while (col < 0) {
+      while (!this._isInBounds(row, col)) {
         row++;
         col++;
       }
@@ -176,12 +176,38 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      let n = this.get('n');
+      let col = minorDiagonalColumnIndexAtFirstRow;
+      let row = 0;
+      let pieceCount = 0;
+
+      while (!this._isInBounds(row, col)) {
+        col--;
+        row++;
+      }
+
+      while (this._isInBounds(row, col)) {
+        if (this.get(row)[col] === 1) {
+          pieceCount++;
+        }
+        col--;
+        row++;
+      }
+
+      return (pieceCount > 1) ? true : false;
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      return false; // fixme
+      let firstMinorDiagonal = 0;
+      let lastMinorDiagonal = (2 * this.get('n')) - 2;
+
+      for (let i = firstMinorDiagonal + 1; i < lastMinorDiagonal; i++) {
+        if (this.hasMinorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/
