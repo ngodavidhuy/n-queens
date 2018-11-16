@@ -25,7 +25,7 @@ window.findNRooksSolution = function(n) {
 
     for (let colIdx = 0; colIdx < n; colIdx++) {
       board.togglePiece(rowIdx, colIdx);
-      if (!board.hasAnyRooksConflicts()) {
+      if (!board.hasColConflictAt(colIdx)) {
         return firstSolution(rowIdx + 1);
       }
       board.togglePiece(rowIdx, colIdx);
@@ -49,7 +49,7 @@ window.countNRooksSolutions = function(n) {
 
     for (let colIdx = 0; colIdx < n; colIdx++) {
       board.togglePiece(rowIdx, colIdx);
-      if (!board.hasAnyRooksConflicts()) {
+      if (!board.hasColConflictAt(colIdx)) {
         firstSolution(rowIdx + 1);
       }
       board.togglePiece( rowIdx, colIdx);
@@ -60,10 +60,19 @@ window.countNRooksSolutions = function(n) {
   return solutionCount;
 };
 
+window.optimizedConflictsCheck = function(rowIndex, colIndex) {
+  return (
+    this.hasColConflictAt(colIndex) ||
+    this.hasMajorDiagonalConflictAt(this._getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, colIndex)) ||
+    this.hasMinorDiagonalConflictAt(this._getFirstRowColumnIndexForMinorDiagonalOn(rowIndex, colIndex))
+  );
+};
+
+
 window.findNQueensSolution = function(n) {
   let board = new Board({n});
 
-  if (n == 0 || n === 2 || n === 3) {
+  if (n === 0 || n === 2 || n === 3) {
     return new Board({n}).rows();
   }
 
@@ -75,7 +84,7 @@ window.findNQueensSolution = function(n) {
 
     for (let colIdx = 0; colIdx < n; colIdx++) {
       board.togglePiece(rowIdx, colIdx);
-      if (!board.hasAnyQueensConflicts()) {
+      if (!optimizedConflictsCheck.call(board, rowIdx, colIdx)) {
       
         let attempt = firstSolution(rowIdx + 1, piecesLeft - 1);
         if (attempt) { return board.rows(); }
@@ -92,6 +101,7 @@ window.countNQueensSolutions = function(n) {
   let board = new Board({n});
   let solutionCount = 0;
 
+  
   let firstSolution = function(rowIdx) {
 
     if (rowIdx === n) {
@@ -101,7 +111,7 @@ window.countNQueensSolutions = function(n) {
 
     for (let colIdx = 0; colIdx < n; colIdx++) {
       board.togglePiece(rowIdx, colIdx);
-      if (!board.hasAnyQueensConflicts()) {
+      if (!optimizedConflictsCheck.call(board, rowIdx, colIdx)) {
         firstSolution(rowIdx + 1);
       } 
       board.togglePiece(rowIdx, colIdx);
